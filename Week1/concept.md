@@ -3,7 +3,7 @@ marp: true
 theme: default
 paginate: true
 ---
-# Introduction to Linear Regression
+# Introduction to Linear Regression - tests
 
 Linear regression is one of the most important concepts in mathematics, statistics, and machine learning. It is widely used for prediction, trend analysis, and understanding relationships between variables. In artificial intelligence and data science, linear regression often serves as the first predictive modeling technique students learn because it combines mathematical intuition with practical applications.
 
