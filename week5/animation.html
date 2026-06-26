@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Week 5: Constrained Optimization Animation</title>
+  <style>
+    :root {
+      --bg1: #0b1f2a;
+      --bg2: #12394a;
+      --card: #f5f8fb;
+      --accent: #ffb703;
+      --ink: #102a43;
+      --muted: #486581;
+      --line: #d9e2ec;
+      --active: #d00000;
+      --ok: #2a9d8f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at 20% 10%, #1b4d63 0%, var(--bg1) 45%),
+                  linear-gradient(140deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .shell {
+      width: min(980px, 100%);
+      background: color-mix(in srgb, var(--card) 96%, white 4%);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(5, 18, 30, 0.35);
+      animation: fadeUp 500ms ease;
+    }
+
+    header {
+      padding: 1rem 1.2rem;
+      background: linear-gradient(90deg, #0f3142, #1b5a75);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      letter-spacing: 0.01em;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      background: var(--accent);
+      color: #111;
+      padding: 0.5rem 0.8rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.secondary {
+      background: #dbe7ef;
+      color: #1f3f59;
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+    }
+
+    .canvas-wrap {
+      padding: 1rem;
+      background: #fff;
+    }
+
+    canvas {
+      width: 100%;
+      aspect-ratio: 16/10;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .panel {
+      border-left: 1px solid var(--line);
+      background: #fbfdff;
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #e8f3ef;
+      color: #176d64;
+    }
+
+    .badge.active {
+      background: #fde9e9;
+      color: #a10f0f;
+    }
+
+    .math {
+      background: #f0f5fa;
+      border: 1px solid #d9e2ec;
+      border-radius: 8px;
+      padding: 0.6rem;
+      font-family: "Menlo", "Consolas", monospace;
+      font-size: 0.9rem;
+      color: #243b53;
+    }
+
+    .slider-wrap {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 850px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>Constrained Optimization: Active vs Inactive Constraint</h1>
+      <div class="controls">
+        <button id="play">Play</button>
+        <button id="pause" class="secondary">Pause</button>
+        <button id="reset" class="secondary">Reset</button>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="canvas-wrap">
+        <canvas id="plot" width="960" height="600" aria-label="Optimization plot"></canvas>
+      </div>
+
+      <aside class="panel">
+        <h2>Scenario</h2>
+        <p>We minimize a quadratic objective over a feasible interval. The red point moves from the unconstrained minimizer toward the feasible optimum.</p>
+
+        <div id="constraintBadge" class="badge">Constraint inactive</div>
+
+        <div class="slider-wrap">
+          <label for="radius">Feasible bound (R): <span id="rVal">2.0</span></label>
+          <input id="radius" type="range" min="0.5" max="3" step="0.1" value="2" />
+        </div>
+
+        <div class="math" id="mathText">Objective: J(w) = (w - 2.4)^2 + 0.2</div>
+        <p id="status">Press Play to animate the optimization path.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("plot");
+    const ctx = canvas.getContext("2d");
+    const playBtn = document.getElementById("play");
+    const pauseBtn = document.getElementById("pause");
+    const resetBtn = document.getElementById("reset");
+    const radiusInput = document.getElementById("radius");
+    const rVal = document.getElementById("rVal");
+    const badge = document.getElementById("constraintBadge");
+    const status = document.getElementById("status");
+
+    const wMin = -3;
+    const wMax = 3;
+    const unconstrainedW = 2.4;
+    const yOffset = 0.2;
+
+    let animating = false;
+    let t = 0;
+    let lastTs = 0;
+
+    function J(w) {
+      return (w - unconstrainedW) * (w - unconstrainedW) + yOffset;
+    }
+
+    function toX(w) {
+      const pad = 70;
+      return pad + ((w - wMin) / (wMax - wMin)) * (canvas.width - 2 * pad);
+    }
+
+    function toY(v) {
+      const padTop = 40;
+      const padBottom = 70;
+      const vMin = 0;
+      const vMax = 10;
+      return canvas.height - padBottom - ((v - vMin) / (vMax - vMin)) * (canvas.height - padTop - padBottom);
+    }
+
+    function currentR() {
+      return Number(radiusInput.value);
+    }
+
+    function constrainedOptimum(r) {
+      return Math.max(-r, Math.min(r, unconstrainedW));
+    }
+
+    function drawAxes() {
+      ctx.strokeStyle = "#9fb3c8";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(toX(wMin), toY(0));
+      ctx.lineTo(toX(wMax), toY(0));
+      ctx.moveTo(toX(0), toY(0));
+      ctx.lineTo(toX(0), toY(9.5));
+      ctx.stroke();
+
+      ctx.fillStyle = "#334e68";
+      ctx.font = "16px Avenir Next";
+      ctx.fillText("w", toX(wMax) - 10, toY(0) + 30);
+      ctx.fillText("J(w)", toX(0) + 10, toY(9.5));
+    }
+
+    function drawObjective() {
+      ctx.strokeStyle = "#1f3f59";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let w = wMin; w <= wMax; w += 0.03) {
+        const x = toX(w);
+        const y = toY(J(w));
+        if (w === wMin) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      ctx.stroke();
+    }
+
+    function drawFeasibleRegion(r) {
+      ctx.fillStyle = "rgba(42,157,143,0.18)";
+      ctx.fillRect(toX(-r), toY(9.5), toX(r) - toX(-r), toY(0) - toY(9.5));
+
+      ctx.strokeStyle = "#2a9d8f";
+      ctx.setLineDash([7, 6]);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(toX(-r), toY(0));
+      ctx.lineTo(toX(-r), toY(9.5));
+      ctx.moveTo(toX(r), toY(0));
+      ctx.lineTo(toX(r), toY(9.5));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawPoint(w, color, label) {
+      const x = toX(w);
+      const y = toY(J(w));
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.font = "15px Avenir Next";
+      ctx.fillText(label, x + 10, y - 8);
+    }
+
+    function drawFrame() {
+      const r = currentR();
+      const wStar = constrainedOptimum(r);
+      const active = Math.abs(wStar - r) < 1e-9 || Math.abs(wStar + r) < 1e-9;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawFeasibleRegion(r);
+      drawAxes();
+      drawObjective();
+
+      drawPoint(unconstrainedW, "#718096", "unconstrained");
+      drawPoint(wStar, "#d00000", "constrained optimum");
+
+      const start = unconstrainedW;
+      const movingW = start + (wStar - start) * t;
+      drawPoint(movingW, "#ffb703", "path");
+
+      if (active) {
+        badge.textContent = "Constraint active";
+        badge.classList.add("active");
+        status.textContent = "Boundary solution: KKT multiplier is typically positive.";
+      } else {
+        badge.textContent = "Constraint inactive";
+        badge.classList.remove("active");
+        status.textContent = "Interior solution: multiplier is zero (no boundary pressure).";
+      }
+    }
+
+    function loop(ts) {
+      if (!animating) return;
+      if (!lastTs) lastTs = ts;
+      const dt = ts - lastTs;
+      lastTs = ts;
+
+      t += dt / 2200;
+      if (t > 1) t = 1;
+      drawFrame();
+
+      if (t < 1) {
+        requestAnimationFrame(loop);
+      } else {
+        animating = false;
+      }
+    }
+
+    playBtn.addEventListener("click", () => {
+      if (animating) return;
+      animating = true;
+      requestAnimationFrame(loop);
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      animating = false;
+      lastTs = 0;
+    });
+
+    resetBtn.addEventListener("click", () => {
+      animating = false;
+      t = 0;
+      lastTs = 0;
+      drawFrame();
+    });
+
+    radiusInput.addEventListener("input", () => {
+      rVal.textContent = Number(radiusInput.value).toFixed(1);
+      t = 0;
+      drawFrame();
+    });
+
+    rVal.textContent = Number(radiusInput.value).toFixed(1);
+    drawFrame();
+  </script>
+</body>
+</html>
