@@ -1,9 +1,3 @@
-## Week 4 Skill Notes
-
-This file stores the Week 4 copy of the active `math-tutor` skill.
-Source of the runnable GitHub-discoverable version:
-- `.github/skills/math-tutor/SKILL.md`
-
 ---
 name: math-tutor
 description: 'Graduate-level math tutoring for linear algebra, calculus, probability, optimization, and statistics. Trigger keywords: study guide, worked example, full solution, practice problems, intuition first, formal proof, connections between topics.'
