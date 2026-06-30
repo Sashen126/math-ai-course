@@ -16,7 +16,7 @@ Audience: Undergraduate (upper-level)
 
 - Real ML problems are rarely unconstrained.
 - Typical constraints:
-  - Norm budgets: $\|w\|_2 \le R$
+  - Norm budgets: $\|w\|_{2} \le R$
   - Probability simplex: $p_i \ge 0,\ \sum_i p_i = 1$
   - Resource/fairness constraints
 - Constraints define a feasible set where solutions must live.
@@ -55,10 +55,10 @@ $$
 
 # Worked Equality Example
 
-Minimize $J(x,y)=x^2+y^2$ subject to $x+y=1$.
+Minimize $J(x,y)=x^{2}+y^{2}$ subject to $x+y=1$.
 
 $$
-\mathcal{L}(x,y,\lambda)=x^2+y^2+\lambda(x+y-1)
+\mathcal{L}(x,y,\lambda)=x^{2}+y^{2}+\lambda(x+y-1)
 $$
 
 Stationarity:
@@ -67,7 +67,7 @@ $$
 2x+\lambda=0,\quad 2y+\lambda=0 \Rightarrow x=y
 $$
 
-Constraint gives $x=y=\tfrac12$. Minimum value $J=\tfrac12$.
+Constraint gives $x=y=\tfrac{1}{2}$. Minimum value $J=\tfrac{1}{2}$.
 
 ---
 
@@ -116,11 +116,11 @@ If $g_i(w^{*})=0$, constraint may be active ($\mu_i>0$).
 # ML Example: Norm-Constrained Fit
 
 $$
-\min_w \|Xw-y\|_2^2 \quad \text{s.t.} \quad \|w\|_2^2 - R^2 \le 0
+\min_w \|Xw-y\|_{2}^{2} \quad \text{s.t.} \quad \|w\|_{2}^{2} - R^{2} \le 0
 $$
 
-- If unconstrained minimizer has $\|w\|_2 < R$, constraint is inactive.
-- If it lies outside ball, optimum lands on boundary $\|w\|_2=R$.
+- If unconstrained minimizer has $\|w\|_{2} < R$, constraint is inactive.
+- If it lies outside ball, optimum lands on boundary $\|w\|_{2}=R$.
 - KKT multiplier $\mu$ reflects pressure from the norm budget.
 
 ---
@@ -130,7 +130,7 @@ $$
 Given:
 
 $$
-\min_w (w-3)^2 \quad \text{s.t.} \quad w \le 2
+\min_w (w-3)^{2} \quad \text{s.t.} \quad w \le 2
 $$
 
 1. Is the inequality active at optimum?  
