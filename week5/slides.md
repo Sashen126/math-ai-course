@@ -77,7 +77,7 @@ Constraint gives $x=y=\tfrac12$. Minimum value $J=\tfrac12$.
 - Tangency condition:
 
 $$
-\nabla J(w^*) = -\lambda \nabla h(w^*)
+\nabla J(w^{*}) = -\lambda \nabla h(w^{*})
 $$
 
 - Interpretation: gradients become aligned (parallel or anti-parallel).
@@ -91,7 +91,7 @@ For $g_i(w)\le 0$, introduce multipliers $\mu_i$.
 KKT conditions include:
 
 $$
-\nabla J(w^*) + \sum_i \mu_i \nabla g_i(w^*) + \sum_j \lambda_j \nabla h_j(w^*) = 0
+\nabla J(w^{*}) + \sum_i \mu_i \nabla g_i(w^{*}) + \sum_j \lambda_j \nabla h_j(w^{*}) = 0
 $$
 
 plus feasibility constraints.
@@ -101,15 +101,15 @@ plus feasibility constraints.
 # KKT (Part 2): Active vs Inactive
 
 - Dual feasibility: $\mu_i \ge 0$
-- Primal feasibility: $g_i(w^*) \le 0$
+- Primal feasibility: $g_i(w^{*}) \le 0$
 - Complementary slackness:
 
 $$
-\mu_i g_i(w^*) = 0
+\mu_i g_i(w^{*}) = 0
 $$
 
-If $g_i(w^*)<0$, then $\mu_i=0$ (inactive).  
-If $g_i(w^*)=0$, constraint may be active ($\mu_i>0$).
+If $g_i(w^{*})<0$, then $\mu_i=0$ (inactive).  
+If $g_i(w^{*})=0$, constraint may be active ($\mu_i>0$).
 
 ---
 
