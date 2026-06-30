@@ -154,6 +154,37 @@
       gap: 0.25rem;
     }
 
+    .self-test {
+      border: 1px solid #d9e2ec;
+      border-radius: 8px;
+      padding: 0.6rem;
+      background: #f8fbff;
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .self-test h3 {
+      margin: 0;
+      font-size: 0.92rem;
+      color: #334e68;
+    }
+
+    .self-test-results {
+      margin: 0;
+      padding-left: 1rem;
+      font-size: 0.88rem;
+      color: #243b53;
+      line-height: 1.35;
+    }
+
+    .self-test-results li.pass {
+      color: #176d64;
+    }
+
+    .self-test-results li.fail {
+      color: #a10f0f;
+    }
+
     input[type="range"] {
       width: 100%;
     }
@@ -208,6 +239,12 @@
           <input id="radius" type="range" min="0.5" max="3" step="0.1" value="2" />
         </div>
 
+        <div class="self-test">
+          <h3>Quick Check</h3>
+          <button id="selfTest" class="secondary" type="button">Run Self-Test</button>
+          <ul id="selfTestResults" class="self-test-results"></ul>
+        </div>
+
         <div class="math" id="mathText">Objective: J(w) = (w - 2.4)^2 + 0.2</div>
         <p id="status">Press Play to animate the optimization path.</p>
       </aside>
@@ -224,6 +261,8 @@
     const rVal = document.getElementById("rVal");
     const badge = document.getElementById("constraintBadge");
     const status = document.getElementById("status");
+    const selfTestBtn = document.getElementById("selfTest");
+    const selfTestResults = document.getElementById("selfTestResults");
 
     const wMin = -3;
     const wMax = 3;
@@ -386,6 +425,78 @@
       rVal.textContent = Number(radiusInput.value).toFixed(1);
       t = 0;
       drawFrame();
+    });
+
+    function setRadius(value) {
+      radiusInput.value = String(value);
+      rVal.textContent = Number(value).toFixed(1);
+      t = 0;
+      drawFrame();
+    }
+
+    function addTestResult(name, passed, detail) {
+      const li = document.createElement("li");
+      li.className = passed ? "pass" : "fail";
+      li.textContent = `${passed ? "PASS" : "FAIL"}: ${name}${detail ? ` (${detail})` : ""}`;
+      selfTestResults.appendChild(li);
+    }
+
+    function nextFrame() {
+      return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    }
+
+    function waitMs(ms) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    async function runSelfTest() {
+      selfTestResults.innerHTML = "";
+      let failCount = 0;
+      const originalRadius = Number(radiusInput.value);
+
+      try {
+        setRadius(2);
+        const activeOk = badge.textContent.includes("active") && status.textContent.includes("Boundary");
+        addTestResult("Constraint activates at R=2.0", activeOk);
+        if (!activeOk) failCount += 1;
+
+        setRadius(3);
+        const inactiveOk = badge.textContent.includes("inactive") && status.textContent.includes("Interior");
+        addTestResult("Constraint deactivates at R=3.0", inactiveOk);
+        if (!inactiveOk) failCount += 1;
+
+        playBtn.click();
+        await nextFrame();
+        await nextFrame();
+        await waitMs(40);
+        const progressed = t > 0;
+        addTestResult("Play advances animation", progressed, `t=${t.toFixed(3)}`);
+        if (!progressed) failCount += 1;
+
+        pauseBtn.click();
+        const pausedOk = animating === false;
+        addTestResult("Pause stops animation", pausedOk);
+        if (!pausedOk) failCount += 1;
+
+        resetBtn.click();
+        const resetOk = t === 0;
+        addTestResult("Reset returns to start", resetOk);
+        if (!resetOk) failCount += 1;
+      } catch (err) {
+        failCount += 1;
+        addTestResult("Self-test execution", false, String(err));
+      } finally {
+        setRadius(originalRadius);
+      }
+
+      const summary = document.createElement("li");
+      summary.className = failCount === 0 ? "pass" : "fail";
+      summary.textContent = failCount === 0 ? "PASS: All checks passed." : `FAIL: ${failCount} check(s) failed.`;
+      selfTestResults.appendChild(summary);
+    }
+
+    selfTestBtn.addEventListener("click", () => {
+      runSelfTest();
     });
 
     rVal.textContent = Number(radiusInput.value).toFixed(1);

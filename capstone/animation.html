@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Capstone Animation: Gradient Descent Simulator</title>
+  <style>
+    :root {
+      --bg-a: #07283d;
+      --bg-b: #134660;
+      --panel: #f8fbff;
+      --ink: #11263a;
+      --muted: #49657c;
+      --line: #d6e2ec;
+      --accent: #f4a261;
+      --accent-2: #2a9d8f;
+      --danger: #c1121f;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 15%, #1f6d8c 0%, transparent 35%),
+        radial-gradient(circle at 85% 10%, #2f8f7e 0%, transparent 25%),
+        linear-gradient(145deg, var(--bg-a), var(--bg-b));
+      display: grid;
+      place-items: center;
+      padding: 1rem;
+    }
+
+    .shell {
+      width: min(1060px, 100%);
+      background: color-mix(in srgb, var(--panel) 95%, white 5%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 42px rgba(5, 20, 34, 0.4);
+      animation: riseIn 500ms ease;
+    }
+
+    header {
+      background: linear-gradient(90deg, #0a334c, #1b5d7c);
+      color: #f1f7ff;
+      padding: 0.95rem 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      letter-spacing: 0.01em;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.9fr 1fr;
+    }
+
+    .canvas-wrap {
+      background: #ffffff;
+      padding: 1rem;
+    }
+
+    canvas {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .side {
+      border-left: 1px solid var(--line);
+      padding: 1rem;
+      display: grid;
+      gap: 0.8rem;
+      align-content: start;
+      background: #fbfdff;
+    }
+
+    .row {
+      display: grid;
+      gap: 0.3rem;
+    }
+
+    label {
+      font-size: 0.92rem;
+      color: #2a435c;
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 0.45rem 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: #1f1f1f;
+    }
+
+    button.secondary {
+      background: #dce7f0;
+      color: #26435b;
+    }
+
+    button.danger {
+      background: #ffe3e6;
+      color: #982432;
+    }
+
+    .math {
+      font-family: "Menlo", "Consolas", monospace;
+      background: #eff4fb;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 0.55rem;
+      font-size: 0.86rem;
+      color: #223a52;
+      line-height: 1.35;
+    }
+
+    .badge {
+      width: fit-content;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: #e6f3ef;
+      color: #19685f;
+    }
+
+    .badge.bad {
+      background: #fde8ea;
+      color: #a0212b;
+    }
+
+    #status {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <h1>Interactive Gradient Descent Simulator (1D)</h1>
+      <div class="badge" id="modeBadge">Stable regime</div>
+    </header>
+
+    <section class="layout">
+      <div class="canvas-wrap">
+        <canvas id="plot" width="1000" height="620" aria-label="Gradient descent trajectory"></canvas>
+      </div>
+
+      <aside class="side">
+        <div class="row">
+          <label for="eta">Learning rate η: <span id="etaValue">0.40</span></label>
+          <input id="eta" type="range" min="0.05" max="2.5" step="0.05" value="0.4" />
+        </div>
+
+        <div class="row">
+          <label for="start">Starting point w0: <span id="startValue">4.0</span></label>
+          <input id="start" type="range" min="-6" max="6" step="0.5" value="4" />
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="stepBtn">Step</button>
+          <button class="secondary" id="runBtn">Run 20 Steps</button>
+          <button class="danger" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="math" id="eqText">
+          Objective: J(w) = 0.5 w^2, gradient: J'(w) = w
+        </div>
+
+        <div class="math" id="stateText"></div>
+
+        <p id="status">Use the slider to test stable, oscillatory, and divergent updates.</p>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const canvas = document.getElementById("plot");
+    const ctx = canvas.getContext("2d");
+
+    const etaInput = document.getElementById("eta");
+    const startInput = document.getElementById("start");
+    const etaValue = document.getElementById("etaValue");
+    const startValue = document.getElementById("startValue");
+    const modeBadge = document.getElementById("modeBadge");
+    const stateText = document.getElementById("stateText");
+    const status = document.getElementById("status");
+
+    const stepBtn = document.getElementById("stepBtn");
+    const runBtn = document.getElementById("runBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let eta = Number(etaInput.value);
+    let w0 = Number(startInput.value);
+    let points = [w0];
+
+    const xMin = -6;
+    const xMax = 6;
+    const yMax = 20;
+
+    const f = (w) => 0.5 * w * w;
+    const grad = (w) => w;
+
+    function toCanvasX(w) {
+      return ((w - xMin) / (xMax - xMin)) * canvas.width;
+    }
+
+    function toCanvasY(y) {
+      return canvas.height - (y / yMax) * canvas.height;
+    }
+
+    function classify(etaNow) {
+      if (etaNow >= 2) return "Divergent regime";
+      if (etaNow > 1) return "Oscillatory but convergent";
+      return "Stable regime";
+    }
+
+    function updateBadge() {
+      const label = classify(eta);
+      modeBadge.textContent = label;
+      modeBadge.classList.toggle("bad", label === "Divergent regime");
+    }
+
+    function updateState() {
+      const n = points.length - 1;
+      const w = points[n];
+      const loss = f(w);
+      stateText.textContent = `Step ${n}: w = ${w.toFixed(4)}, J(w) = ${loss.toFixed(4)}, update = w - eta * grad(w)`;
+    }
+
+    function drawAxes() {
+      ctx.strokeStyle = "#c8d7e5";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, toCanvasY(0));
+      ctx.lineTo(canvas.width, toCanvasY(0));
+      ctx.moveTo(toCanvasX(0), 0);
+      ctx.lineTo(toCanvasX(0), canvas.height);
+      ctx.stroke();
+    }
+
+    function drawCurve() {
+      ctx.strokeStyle = "#2a9d8f";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      for (let i = 0; i <= 400; i++) {
+        const w = xMin + (i / 400) * (xMax - xMin);
+        const x = toCanvasX(w);
+        const y = toCanvasY(Math.min(f(w), yMax));
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    function drawTrajectory() {
+      for (let i = 0; i < points.length; i++) {
+        const w = points[i];
+        const x = toCanvasX(w);
+        const y = toCanvasY(Math.min(f(w), yMax));
+
+        ctx.fillStyle = i === points.length - 1 ? "#c1121f" : "#345f7e";
+        ctx.beginPath();
+        ctx.arc(x, y, i === points.length - 1 ? 6 : 4, 0, Math.PI * 2);
+        ctx.fill();
+
+        if (i < points.length - 1) {
+          const wNext = points[i + 1];
+          const x2 = toCanvasX(wNext);
+          const y2 = toCanvasY(Math.min(f(wNext), yMax));
+          ctx.strokeStyle = "rgba(52, 95, 126, 0.6)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawAxes();
+      drawCurve();
+      drawTrajectory();
+      updateState();
+      updateBadge();
+    }
+
+    function stepOnce() {
+      const current = points[points.length - 1];
+      const next = current - eta * grad(current);
+      points.push(next);
+      render();
+    }
+
+    function reset() {
+      points = [w0];
+      status.textContent = "Use the slider to test stable, oscillatory, and divergent updates.";
+      render();
+    }
+
+    etaInput.addEventListener("input", () => {
+      eta = Number(etaInput.value);
+      etaValue.textContent = eta.toFixed(2);
+      updateBadge();
+    });
+
+    startInput.addEventListener("input", () => {
+      w0 = Number(startInput.value);
+      startValue.textContent = w0.toFixed(1);
+      reset();
+    });
+
+    stepBtn.addEventListener("click", () => {
+      stepOnce();
+      status.textContent = "Single update applied.";
+    });
+
+    runBtn.addEventListener("click", () => {
+      for (let i = 0; i < 20; i++) {
+        stepOnce();
+      }
+      status.textContent = "Ran 20 steps. Compare behavior across learning rates.";
+    });
+
+    resetBtn.addEventListener("click", reset);
+
+    etaValue.textContent = eta.toFixed(2);
+    startValue.textContent = w0.toFixed(1);
+    render();
+  </script>
+</body>
+</html>

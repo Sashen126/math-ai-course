@@ -1,0 +1,17 @@
+{
+  "name": "capstone-remotion-lecture",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "remotion studio",
+    "render": "remotion render src/index.ts CapstoneLecture out/capstone-lecture.mp4"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "remotion": "^4.0.262"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}
