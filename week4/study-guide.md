@@ -1,5 +1,7 @@
 # Week 4 Study Guide
 
+> Preview note: This file uses LaTeX math in Markdown. It displays correctly on GitHub and in Markdown previews that support math rendering.
+
 ## Topic
 Singular Value Decomposition (SVD), Principal Component Analysis (PCA), and low-rank approximation.
 
@@ -25,14 +27,14 @@ X = U\Sigma V^T,
 $$
 where:
 - $U \in \mathbb{R}^{m \times m}$ and $V \in \mathbb{R}^{n \times n}$ are orthogonal,
-- $\Sigma \in \mathbb{R}^{m \times n}$ is diagonal (rectangular) with nonnegative entries
-  $\sigma_1 \ge \sigma_2 \ge \cdots \ge 0$.
+- $\Sigma \in \mathbb{R}^{m \times n}$ is diagonal (rectangular) with nonnegative entries satisfying $\sigma_1 \ge \sigma_2 \ge \cdots \ge 0$.
 
 For rank-$k$ approximation:
 $$
 X_k = U_k\Sigma_k V_k^T.
 $$
-By Eckart-Young-Mirsky,
+
+By the **Eckart-Young-Mirsky theorem**,
 $$
 X_k = \arg\min_{\mathrm{rank}(Y)\le k} \|X-Y\|_F,
 $$
