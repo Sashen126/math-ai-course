@@ -9,14 +9,7 @@ This folder contains a Remotion + edge-tts pipeline for a complete 3-5 minute na
 - `tools/build_video.sh`: install dependencies and render final MP4
 
 ## Build Steps
-1. Generate narration audio:
-
-```bash
-cd capstone/video/tools
-./generate_narration.sh
-```
-
-2. Render video:
+Run one command for narration + render:
 
 ```bash
 cd capstone/video/tools
@@ -28,4 +21,5 @@ Expected output:
 
 ## Notes
 - The rendered video is designed to cover the entire lecture sequence from motivation to conclusion.
+- `build_video.sh` calls `generate_narration.sh` first, then renders with Remotion.
 - If edge-tts is unavailable, install with: `pip install edge-tts`.

@@ -45,10 +45,10 @@ $$
 
 # Local Quadratic Intuition
 
-Near a minimum $w^*$, many losses behave approximately like:
+Near a minimum $w^{\ast}$, many losses behave approximately like:
 
 $$
-J(w) \approx J(w^*) + \frac{1}{2}(w-w^*)^\top H (w-w^*)
+J(w) \approx J(w^{\ast}) + \frac{1}{2}(w-w^{\ast})^\top H (w-w^{\ast})
 $$
 
 where $H$ is the Hessian.
