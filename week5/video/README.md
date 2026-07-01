@@ -23,5 +23,6 @@ npm run start
 
 Then render:
 ```bash
-npm run render
+cd week5/video/tools
+bash build_video.sh
 ```
