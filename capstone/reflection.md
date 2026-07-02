@@ -1,31 +1,13 @@
 # Capstone Reflection (Track B: Teaching Math)
 
-## Topic and Teaching Goal
-I chose **Gradient Descent and Learning Rate Schedules** because it is both mathematically principled and practically central to machine learning. My teaching goal was to help a student move from equation-level understanding to actionable training decisions.
+## 1) How did my workflow change during this course?
+My workflow changed from "generate one artifact at a time" to "design one teaching system, then implement all artifacts from that shared plan." Early in the course, I would write slides first, then improvise a video script later, which created mismatches in pacing and examples. In this capstone, I started with one narrative arc (motivation -> setup -> worked examples -> practical rules -> recap) and reused it in [capstone/slides.md](capstone/slides.md), [capstone/video/remotion/src/LectureScene.tsx](capstone/video/remotion/src/LectureScene.tsx), and [capstone/animation.html](capstone/animation.html), which made the final package more coherent and faster to refine.
 
-## Coherent Package Design
-I intentionally designed slides, video, and animation as one instructional sequence:
-1. **Slides** establish the narrative arc: motivation -> update rule -> stability math -> schedules -> practical rules.
-2. **Video** follows the same arc with timed scenes and narration for continuity.
-3. **Animation** isolates the key dynamic (stable vs oscillatory vs divergent updates) so learners can experiment with learning rate directly.
+## 2) What could the AI tools not do well?
+A concrete failure was math rendering reliability: the generated slide equations repeatedly triggered KaTeX parse errors such as missing or mismatched braces in superscripts/subscripts. I had to manually audit and normalize notation (for example converting forms like `w^*` and unbraced indices) because the initial generated output was mathematically correct in meaning but not consistently parser-safe in strict rendering contexts. Another failure was execution environment assumptions: Copilot generated valid Remotion and narration scripts, but they did not run end-to-end until I manually fixed dependency and path issues (missing Remotion CLI dependency and edge-tts path handling in build scripts).
 
-This avoided the common failure mode where each artifact is technically complete but pedagogically disconnected.
+## 3) Which single skill or agent feature had the biggest impact, and why?
+The biggest impact came from the refined lecture-generator skill in [.agent/skills/lecture-generator.skill.md](.agent/skills/lecture-generator.skill.md). The key improvement was that it enforced output coherence and completeness constraints (full narration, aligned scenes, interactive concept demo) instead of just producing files that look finished. In practice, this changed my decisions during iteration: I evaluated every edit by whether it preserved the same learning objective across slides, video, and animation, which reduced rework and improved instructional quality.
 
-## What I Refined in the Skill
-Compared with the earlier lecture-generator workflow, I refined the skill in four important ways:
-1. I made **coherence** a first-class requirement, not an optional quality check.
-2. I required a **full-content narration pipeline**, preventing short demo-only videos.
-3. I required a **dynamic animation control** that teaches mechanism, not decoration.
-4. I added a **reflection artifact** to capture what pedagogical choices worked and why.
-
-## What Worked Well
-- The 1D stability derivation provided a compact mathematical anchor.
-- Using scene-based narration made the Remotion structure easy to align with content.
-- The slider-based simulator gave immediate intuition for step-size regimes.
-
-## Limitations and Next Iteration
-- The current video scaffold assumes local availability of `edge-tts` and `npm`; if unavailable, render cannot be validated end-to-end in this environment.
-- A stronger next version would add one more realistic deep-learning case curve (train/val logs) and a short formative quiz slide with answers.
-
-## Takeaway
-The strongest improvement was treating mini-lecture generation as **instructional systems design** rather than file generation. Once the skill encoded coherence and completeness constraints, each output became easier to refine and more useful to learners.
+## 4) What would I build or automate next?
+Next, I would build a "render-and-validate" companion skill that runs all quality checks automatically after generation. It would run equation linting for KaTeX safety, verify video runtime is within 3-5 minutes, confirm narration audio exists, render the Remotion composition, and output a pass/fail checklist tied to rubric items. I would also add a consistency checker that compares slide section titles against video scene titles so drift is caught immediately before submission.
